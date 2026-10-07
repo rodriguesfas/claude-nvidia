@@ -15,6 +15,13 @@ NVIDIA_NIM_API_KEY=nvapi-SEU_TOKEN ./install-nvidia-claude-code.sh
 Sem a env var, ele pergunta a chave (fica salva com permissão `600`).
 Pegue a chave em <https://build.nvidia.com>.
 
+Ou em uma linha (baixa e roda direto):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/rodriguesfas/claude-nvidia/main/install-nvidia-claude-code.sh -o install-nvidia-claude-code.sh
+NVIDIA_NIM_API_KEY=nvapi-SEU_TOKEN ./install-nvidia-claude-code.sh
+```
+
 **Requisitos:** Linux, `python3`, `curl`, `ss` e o [Claude Code](https://docs.anthropic.com/claude/code)
 (`npm i -g @anthropic-ai/claude-code`).
 
