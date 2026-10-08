@@ -1,6 +1,6 @@
 # claude-nvidia
 
-Faz o **Claude Code** rodar com modelos da **NVIDIA NIM** (Kimi-K3, GLM-5.3, Nemotron, GPT-OSS...)
+Faz o **Claude Code** rodar com modelos da **NVIDIA NIM** (Nemotron 3 Super por padrão; também Kimi-K3, GLM-5.3, GPT-OSS...)
 através de um proxy LiteLLM local. Um único instalador idempotente configura tudo.
 
 ## Instalação
@@ -46,7 +46,7 @@ claude-nvidia
 ### Trocar o modelo
 
 1. **Padrão** — edite `NV_MODEL` em `~/.config/claude-nvidia/env`
-   (padrão `nvidia_nim/moonshotai/kimi-k3`, 1M de contexto)
+   (padrão `nvidia_nim/nvidia/nemotron-3-super-120b-a12b` — Nemotron 3 Super)
 2. **Por chamada** — `NV_MODEL=nvidia_nim/z-ai/glm-5.3 claude-nvidia`
 3. **Dentro da sessão** — `/model` → `nvidia-model` · `nvidia-k3` · `nvidia-glm` · `nvidia-nemotron` · `nvidia-small`
 

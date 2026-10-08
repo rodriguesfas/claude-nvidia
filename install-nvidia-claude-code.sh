@@ -6,7 +6,7 @@
 #                                   [--small-model nvidia_nim/...] [--no-test] [--e2e]
 #
 #   --api-key      chave da NVIDIA (senão: chave já instalada > $NVIDIA_NIM_API_KEY > prompt)
-#   --model        modelo principal (padrão: nvidia_nim/moonshotai/kimi-k3)
+#   --model        modelo principal (padrão: nvidia_nim/nvidia/nemotron-3-super-120b-a12b)
 #   --small-model  modelo pequeno/rápido (padrão: nvidia_nim/openai/gpt-oss-20b)
 #   --no-test      não valida subindo o proxy no final
 #   --e2e          além disso, roda um claude -p de ponta a ponta
@@ -24,7 +24,7 @@ SETTINGS="$PREFIX/.claude/settings.json"
 LITELLM_SPEC="litellm[proxy]==1.104.0"
 MARKER="# gerado por install-nvidia-claude-code.sh"
 
-NV_MODEL_DEFAULT="nvidia_nim/moonshotai/kimi-k3"
+NV_MODEL_DEFAULT="nvidia_nim/nvidia/nemotron-3-super-120b-a12b"
 NV_SMALL_DEFAULT="nvidia_nim/openai/gpt-oss-20b"
 API_KEY_IN="${NVIDIA_NIM_API_KEY:-}"
 MODEL_FROM_FLAG=0
@@ -129,27 +129,37 @@ else
   cat > "$CONF" <<'EOF'
 # gerado por install-nvidia-claude-code.sh
 model_list:
-  # Principal: o upstream vem de NV_MODEL (definido em env, padrao kimi-k3).
+  # Principal: o upstream vem de NV_MODEL (padrao nemotron-3-super-120b-a12b).
+  # temperature/top_p: recomendacao NVIDIA p/ Nemotron 3 Super em agente.
+  # Se apontar NV_MODEL p/ kimi-k3, use 0.6/0.95 (temp alta faz o Kimi vazar lixo).
   - model_name: nvidia-model
     litellm_params:
       model: os.environ/NV_MODEL
       api_key: os.environ/NVIDIA_NIM_API_KEY
+      temperature: 1.0
+      top_p: 0.95
 
   # Atalhos para trocar de modelo em runtime com /model dentro do Claude Code.
   - model_name: nvidia-k3
     litellm_params:
       model: nvidia_nim/moonshotai/kimi-k3
       api_key: os.environ/NVIDIA_NIM_API_KEY
+      temperature: 0.6
+      top_p: 0.95
 
   - model_name: nvidia-glm
     litellm_params:
       model: nvidia_nim/z-ai/glm-5.3
       api_key: os.environ/NVIDIA_NIM_API_KEY
+      temperature: 0.6
+      top_p: 0.95
 
   - model_name: nvidia-nemotron
     litellm_params:
       model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
       api_key: os.environ/NVIDIA_NIM_API_KEY
+      temperature: 1.0
+      top_p: 0.95
 
   # Pequeno/rapido: vem de NV_SMALL_MODEL (tarefas de fundo do Claude Code).
   - model_name: nvidia-small
@@ -372,7 +382,7 @@ ok "wrapper em $WRAPPER"
 # Só mexe em modelPicker.options (acrescenta/atualiza as nossas linhas);
 # hooks e o resto do arquivo ficam intactos.
 MODEL_PICKER_ROWS='[
-  {"model":"nvidia-model","label":"NVIDIA principal (NV_MODEL)","description":"Modelo padrão do claude-nvidia (kimi-k3, 1M de contexto)","behavesAs":"claude-sonnet-4-6"},
+  {"model":"nvidia-model","label":"NVIDIA principal (NV_MODEL)","description":"Modelo padrão do claude-nvidia (Nemotron 3 Super 120B)","behavesAs":"claude-sonnet-4-6"},
   {"model":"nvidia-k3","label":"NVIDIA Kimi-K3","description":"moonshotai/kimi-k3 — agentic, 1M de contexto","behavesAs":"claude-sonnet-4-6"},
   {"model":"nvidia-glm","label":"NVIDIA GLM-5.3","description":"z-ai/glm-5.3 — coding, 1M de contexto","behavesAs":"claude-sonnet-4-6"},
   {"model":"nvidia-nemotron","label":"NVIDIA Nemotron 3 Super 120B","description":"nvidia/nemotron-3-super-120b-a12b — rápido","behavesAs":"claude-sonnet-4-6"},
@@ -395,6 +405,7 @@ for r in rows:
         opts[idx[r["model"]]] = r
     else:
         opts.append(r)
+data["model"] = "nvidia-model"
 os.makedirs(os.path.dirname(path), exist_ok=True)
 json.dump(data, open(path, "w"), indent=2, ensure_ascii=False)
 open(path, "a").write("\n")
